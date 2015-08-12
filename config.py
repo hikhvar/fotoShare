@@ -3,9 +3,9 @@ __author__ = 'christoph'
 import os
 
 # configuration
-DATABASE = 'fotoShare.db'
+DATABASE = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'fotoShare.db')
 DEBUG = True
-SECRET_KEY = 'development key'
+SECRET_KEY = os.urandom(2048)
 USERNAME = 'admin'
 PASSWORD = 'default'
 PICTURE_DIR = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'pictures')

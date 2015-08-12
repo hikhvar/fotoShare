@@ -16,6 +16,8 @@ import config
 app = Flask(__name__)
 app.config.from_object(config)
 
+if not os.path.exists(config.DATABASE):
+    database.init_db(app)
 
 
 @app.before_request
