@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+{% for picture in pictures %}
+    <a href="/tag/{{ picture.filename }}">{{ picture.filename }}</a><br>
+{% endfor %}
+</body>
+</html>

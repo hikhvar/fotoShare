@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Picture Tagging for {{ picture_name }}</title>
+    <style type="text/css">
+
+    .box {
+ float: left;
+ width: 48%;
+ margin-right: 2%;
+ padding: 20px;
+ background: #eee;
+ box-sizing: border-box;
+}
+
+    .box:last-child {
+     margin-right: 0;
+}
+
+.picture_view {
+width:100%;
+    height: 100%;
+}
+    </style>
+</head>
+<body>
+<h1>{{ picture_name }}</h1>
+<div class="box">
+<img src="{{ picture_path }}" alt="picture" class="picture_view">
+</div>
+
+<div class="box">
+
+    <form>
+        <label for="all">
+        {% if checked %}
+            <input type="checkbox" name="all" value="all" id="all" checked>
+        {% else %}
+            <input type="checkbox" name="all" value="all" id="all">
+        {% endif %}
+                Visible for all.
+        </label><br>
+        <textarea name="persons" rows="20">{{ persons }}</textarea><br>
+        <button type="submit" name="action" value="save">Save</button>
+        <button type="submit" name="action" value="next">Save&Next</button><br>
+    </form>
+
+</div>
+
+</body>
+</html>

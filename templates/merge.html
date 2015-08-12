@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Merge</title>
+</head>
+<body>
+<form>
+    {% for person in persons %}
+        <label for="{{ person.name }}">
+            <input type="checkbox" name="{{ person.name }}" value="merged" id="{{ person.name }}">
+            <a href="/private-pictures/{{ person.name }}">{{ person.name }}</a> {{ person.session_key }}
+        </label><br>
+
+        {% endfor %}
+        <button type="submit">Assing same session key</button>
+</form>
+
+</body>
+</html>
