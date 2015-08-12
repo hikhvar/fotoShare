@@ -102,6 +102,11 @@ def get_private_pictures(person):
     pictures = database.get_all_pictures_of_a_person(g.db, person)
     return render_template("private.html", pictures=pictures)
 
+@app.route("/")
+def main_view():
+    return render_template("tag_main.html")
+
+
 def reread_pictures(app):
     for filename in os.listdir(config.PICTURE_DIR):
         filepath = os.path.join(config.PICTURE_DIR, filename)

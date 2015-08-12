@@ -54,7 +54,7 @@ def add_person(db, person_name, session_key=None):
 
 def delete_person(db, person_name):
     c = db.cursor()
-    c.execute("DELETE FROM persons WHERE name=?", (person_name))
+    c.execute("DELETE FROM persons WHERE name=?", (person_name, ))
     db.commit()
 
 def merge_session_keys(db, persons, session_key=None):

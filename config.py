@@ -11,4 +11,4 @@ USERNAME = 'admin'
 PASSWORD = 'default'
 PICTURE_DIR = os.path.join(_install_dir, 'pictures')
 GREATER_TEXT = u"Unter dieser URL findet ihr eure persoenlichen Bilder von der Hochzeit: %s"
-URL_PREFIX = "http://localhost:5000/"
+URL_PREFIX = "http://petrausch.info/hochzeitsfotos/"
