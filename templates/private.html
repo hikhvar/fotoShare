@@ -6,7 +6,12 @@
 </head>
 <body>
 {% for picture in pictures %}
-    <a href="/tag/{{ picture.filename }}">{{ picture.filename }}</a><br>
+    <a href="/tag/{{ person }}/{{ picture.filename }}">{{ picture.filename }}</a><br>
 {% endfor %}
+<br><a href="/">Main</a>
+<a href="/merge">Merge</a>
+<a href="/tag">Tag</a>
+<a href="/rename/{{ person }}">Rename</a>
+
 </body>
 </html>

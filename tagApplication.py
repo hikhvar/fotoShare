@@ -35,8 +35,12 @@ def teardown_request(exception):
 def start_tagging():
     return render_template("tag_overview.html", pictures = database.get_all_picture_names(g.db))
 
+@app.route("/tag/<string:person>/<string:picture_name>")
+def tag_persons_pictures(person, picture_name):
+    return tag_picture(picture_name, person)
+
 @app.route("/tag/<string:picture_name>")
-def tag_picture(picture_name):
+def tag_picture(picture_name, tag_person=None):
     if len(request.args.viewkeys()) > 0:
         if "all" in request.args:
             database.alter_picture(g.db, picture_name, public=True)
@@ -55,15 +59,26 @@ def tag_picture(picture_name):
                 if len(database.get_all_pictures_of_a_person(g.db, person)) < 1:
                     database.delete_person(g.db, person)
         if "action" in request.args:
+            prev, next = database.get_prev_and_next_picture_name(g.db, picture_name, tag_person)
+            new_name = picture_name
             if request.args["action"] == "next":
-                new_name = database.get_next_picture_name(g.db, picture_name)
-                if new_name is None:
+                new_name = next
+            if request.args["action"] == "prev":
+                new_name = prev
+            if new_name is None:
+                if tag_person is not None:
+                    return redirect("/private-pictures/"+str(tag_person))
+                else:
                     return redirect("/tag")
+            if tag_person is not None:
+                return redirect("/tag/"+str(tag_person)+"/"+new_name)
+            else:
                 return redirect("/tag/"+new_name)
+
     stored_picture_data = database.get_picture_data(g.db, picture_name)
     persons_on_picture = map(lambda x: x["name"], database.get_all_persons_on_picture(g.db, picture_name))
     return render_template("tag.html",
-                           picture_path = os.path.join("..","pictures", picture_name),
+                           picture_path = os.path.join("/pictures", picture_name),
                            picture_name = picture_name,
                            checked=stored_picture_data["public_viewable"],
                            persons = "\n".join(persons_on_picture)
@@ -100,17 +115,44 @@ def export():
 @app.route("/private-pictures/<string:person>")
 def get_private_pictures(person):
     pictures = database.get_all_pictures_of_a_person(g.db, person)
-    return render_template("private.html", pictures=pictures)
+    return render_template("private.html", pictures=pictures, person=person)
 
 @app.route("/")
 def main_view():
     return render_template("tag_main.html")
 
+@app.route("/rename/<string:person>")
+def rename_person(person):
+    return rename(person)
+
+@app.route("/rename")
+def rename(selected_person=None):
+    if len(request.args.viewkeys()) > 0:
+        if "source_name" in request.args:
+            source_name = request.args["source_name"]
+        else:
+            source_name = None
+        if "new_name" in request.args:
+            new_name = request.args["new_name"]
+        else:
+            new_name = None
+        if "action" in request.args:
+            if request.args["action"] == "rename":
+                action = "rename"
+            else:
+                action = None
+        else:
+            action = None
+        if source_name is not None and new_name is not None and action is not None:
+            database.rename_person(g.db, source_name, new_name)
+        return redirect("/rename")
+    persons = map(lambda x: dict(name=x["name"], selected=x["name"]==selected_person), database.get_all_persons(g.db))
+    return render_template("rename.html", persons=persons)
 
 def reread_pictures(app):
     for filename in os.listdir(config.PICTURE_DIR):
-        filepath = os.path.join(config.PICTURE_DIR, filename)
-        im=Image.open(filepath)
+        file_path = os.path.join(config.PICTURE_DIR, filename)
+        im=Image.open(file_path)
         width, height = im.size
         db = database.connect_db(app)
         database.add_picture(db, filename, width, height, False)

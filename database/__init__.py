@@ -182,6 +182,37 @@ def get_next_picture_name(db, picture_name):
     else:
         return row["filename"]
 
+def get_prev_and_next_picture_name(db, picture_name, person_name=None):
+    c = db.cursor()
+    if person_name is None:
+        db_result = c.execute("""
+        SELECT filename
+        FROM pictures
+        ORDER BY filename;
+        """)
+    else:
+        db_result = c.execute("""
+        SELECT pictures.filename
+        FROM personsOnPicture
+            INNER JOIN pictures ON personsOnPicture.picture_id=pictures.id
+            INNER JOIN persons ON personsOnPicture.person_id=persons.id
+        WHERE
+            persons.name=?
+        ORDER BY pictures.filename;
+        """
+        , (person_name,))
+    cur = db_result.fetchone()
+    prev = None
+    while (cur is not None) and (cur["filename"] != picture_name):
+        prev = cur
+        cur = db_result.fetchone()
+    next = db_result.fetchone()
+    if prev is not None:
+        prev = prev["filename"]
+    if next is not None:
+        next = next["filename"]
+    return prev, next
+
 def get_all_picture_names(db):
     c = db.cursor()
     return map(lambda x: x["filename"],
@@ -215,5 +246,18 @@ def get_all_persons(db):
     FROM persons
     ORDER BY session_key;
     """)
+
+def rename_person(db, old_name, new_name):
+    add_person(db, new_name)
+    c = db.cursor()
+    c.execute("""
+    UPDATE personsOnPicture
+    SET person_id=(SELECT id FROM persons WHERE name=?)
+    WHERE person_id=(SELECT id FROM persons WHERE name=?);
+    """, (new_name, old_name)
+    )
+    db.commit()
+    delete_person(db, old_name)
+
 
 

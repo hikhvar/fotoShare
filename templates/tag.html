@@ -41,12 +41,16 @@ width:100%;
         {% endif %}
                 Visible for all.
         </label><br>
-        <textarea name="persons" rows="20">{{ persons }}</textarea><br>
+        <textarea name="persons" rows="20" autofocus>{{ persons }}</textarea><br>
+        <button type="submit" name="action" value="prev">Save&Previous</button>
         <button type="submit" name="action" value="save">Save</button>
         <button type="submit" name="action" value="next">Save&Next</button><br>
     </form>
-
 </div>
+
+<a href="/">Main</a>
+<a href="/merge">Merge</a>
+<a href="/tag">Tag</a>
 
 </body>
 </html>

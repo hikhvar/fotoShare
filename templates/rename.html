@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<form>
+        <select name="source_name">
+            {% for person in persons %}
+                {% if person.selected %}
+                    <option selected>{{ person.name }}</option>
+                {% else %}
+                    <option>{{ person.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select> -> <input type="text" name="new_name">
+        <button type="submit" name="action" value="rename">Rename</button>
+    </form>
+
+<br><a href="/">Main</a>
+<a href="/merge">Merge</a>
+<a href="/tag">Tag</a>
+
+</body>
+</html>
