@@ -4,6 +4,7 @@ from flask import g
 from contextlib import closing
 import random
 import string
+import collections
 
 
 def connect_db(app):
@@ -248,8 +249,9 @@ def get_all_persons(db):
     """)
 
 def rename_person(db, old_name, new_name):
-    add_person(db, new_name)
     c = db.cursor()
+    session_key = c.execute("SELECT session_key FROM persons WHERE name=?;" , (old_name, )).fetchone()["session_key"]
+    add_person(db, new_name, session_key)
     c.execute("""
     UPDATE personsOnPicture
     SET person_id=(SELECT id FROM persons WHERE name=?)
@@ -259,5 +261,20 @@ def rename_person(db, old_name, new_name):
     db.commit()
     delete_person(db, old_name)
 
+def get_all_persons_and_numbers(db):
+    c = db.cursor()
+    return c.execute("""
+    SELECT persons.name, persons.session_key, COUNT(*)
+    FROM personsOnPicture
+        INNER JOIN persons ON personsOnPicture.person_id=persons.id
+    GROUP BY persons.name;
+    """
+    )
 
+def get_all_persons_grouped_by_session_keys(db):
+    db_result = get_all_persons_and_numbers(db)
+    ret_dict = collections.defaultdict(list)
+    for name, session_key, count in db_result:
+        ret_dict[session_key].append(dict(name=name, count=count))
+    return ret_dict
 

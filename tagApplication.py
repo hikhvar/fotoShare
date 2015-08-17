@@ -14,6 +14,7 @@ from PIL import Image
 import csv
 import collections
 import StringIO
+import unicode_helper
 
 # create our little application :)
 app = Flask(__name__)
@@ -92,7 +93,7 @@ def get_picture(picture_name):
 def merge():
     if len(request.args.viewkeys()) > 0:
         database.merge_session_keys(g.db, request.args)
-    return render_template("merge.html", persons=database.get_all_persons(g.db))
+    return render_template("merge.html", persons=database.get_all_persons_grouped_by_session_keys(g.db))
 
 @app.route("/export")
 def export():
@@ -101,7 +102,7 @@ def export():
     for name, session_key in all_persons:
         sorted_dict[session_key].append(name)
     f = StringIO.StringIO()
-    writer = csv.writer(f)
+    writer = unicode_helper.UnicodeWriter(f)
     for session_key, names in sorted_dict.iteritems():
         names_string = " ".join(names)
         url = config.URL_PREFIX + session_key

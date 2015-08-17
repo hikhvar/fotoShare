@@ -5,15 +5,21 @@
     <title>Merge</title>
 </head>
 <body>
+    <li><a href="tag">Picture Tagging Mode</a></li>
+    <li><a href="merge">Merging Session Keys</a> </li>
+    <li><a href="export">Download Session Keys as CSV</a></li>
+    <li><a href="rename">Rename</a> </li>
 <form>
-    {% for person in persons %}
-        <label for="{{ person.name }}">
-            <input type="checkbox" name="{{ person.name }}" value="merged" id="{{ person.name }}">
-            <a href="/private-pictures/{{ person.name }}">{{ person.name }}</a> {{ person.session_key }}
-        </label><br>
-
+    {% for session_key in persons %}
+        <h6>{{ session_key }}</h6>
+        {% for person in persons[session_key] %}
+            <label for="{{ person }}">
+                <input type="checkbox" name="{{ person.name }}" value="merged" id="{{ person.name }}">
+                <a href="/private-pictures/{{ person.name }}">{{ person.name }}</a> ({{ person.count }}) {{ session_key }}
+            </label><br>
         {% endfor %}
-        <button type="submit">Assing same session key</button>
+    {% endfor %}
+    <button type="submit">Assing same session key</button>
 </form>
 
 </body>
