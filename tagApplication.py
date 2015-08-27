@@ -163,4 +163,5 @@ def init_database(app):
     reread_pictures(app)
 
 if __name__ == '__main__':
-    app.run()
+    reread_pictures(app)
+    app.run("0.0.0.0")

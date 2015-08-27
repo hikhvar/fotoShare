@@ -106,7 +106,8 @@ def get_all_pictures_of_a_person(db, person_name):
         INNER JOIN pictures ON personsOnPicture.picture_id=pictures.id
         INNER JOIN persons ON personsOnPicture.person_id=persons.id
     WHERE
-        persons.name=?;
+        persons.name=?
+    ORDER BY pictures.filename;
     """
     , (person_name,)
     )
