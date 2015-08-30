@@ -19,6 +19,7 @@ def init_db(app):
             db.cursor().executescript(f.read())
         db.commit()
 
+
 def add_picture(db, picture_name, width, height, public):
     c = db.cursor()
     c.execute("SELECT * from pictures WHERE pictures.filename=?", (picture_name, ))
@@ -28,6 +29,7 @@ def add_picture(db, picture_name, width, height, public):
         return True
     else:
         return False
+
 
 def alter_picture(db, picture_name, width=None, height=None, public=None):
     c = db.cursor()
@@ -41,6 +43,7 @@ def alter_picture(db, picture_name, width=None, height=None, public=None):
         c.execute("UPDATE pictures SET public_viewable=? WHERE filename=? ", (public, picture_name))
     db.commit()
 
+
 def add_person(db, person_name, session_key=None):
     if session_key is None:
         session_key = ''.join(random.choice(string.ascii_uppercase) for _ in range(6))
@@ -53,10 +56,12 @@ def add_person(db, person_name, session_key=None):
     else:
         return False
 
+
 def delete_person(db, person_name):
     c = db.cursor()
     c.execute("DELETE FROM persons WHERE name=?", (person_name, ))
     db.commit()
+
 
 def merge_session_keys(db, persons, session_key=None):
     if session_key is None:
@@ -65,6 +70,7 @@ def merge_session_keys(db, persons, session_key=None):
     for person in persons:
         c.execute("UPDATE persons SET session_key=? WHERE name=?", (session_key, person))
     db.commit()
+
 
 def connect_person_with_picture(db, picture_name, person_name):
     c = db.cursor()
@@ -80,6 +86,7 @@ def connect_person_with_picture(db, picture_name, person_name):
     , (picture_name, person_name)
     )
     db.commit()
+
 
 def unconnect_person_from_picture(db, picture_name, person_name):
     c = db.cursor()
@@ -98,6 +105,7 @@ def unconnect_person_from_picture(db, picture_name, person_name):
     )
     db.commit()
 
+
 def get_all_pictures_of_a_person(db, person_name):
     c = db.cursor()
     db_result = c.execute("""
@@ -113,6 +121,7 @@ def get_all_pictures_of_a_person(db, person_name):
     )
     return db_result.fetchall()
 
+
 def get_all_pictures_of_a_session_key(db, session_key):
     c = db.cursor()
     db_result = c.execute("""
@@ -126,6 +135,7 @@ def get_all_pictures_of_a_session_key(db, session_key):
     , (session_key,)
     )
     return db_result.fetchall()
+
 
 def get_pictures_with_session_key_and_name(db, session_key, picture_name):
     c = db.cursor()
@@ -143,6 +153,7 @@ def get_pictures_with_session_key_and_name(db, session_key, picture_name):
     )
     return db_result.fetchall()
 
+
 def get_picture_data(db, picture_name):
     c = db.cursor()
     db_result = c.execute("""
@@ -154,6 +165,7 @@ def get_picture_data(db, picture_name):
     , ( picture_name, )
     )
     return db_result.fetchone()
+
 
 def get_all_persons_on_picture(db, picture_name):
     c = db.cursor()
@@ -169,6 +181,7 @@ def get_all_persons_on_picture(db, picture_name):
     )
     return db_result.fetchall()
 
+
 def get_next_picture_name(db, picture_name):
     c = db.cursor()
     db_result = c.execute("""
@@ -183,6 +196,7 @@ def get_next_picture_name(db, picture_name):
         return None
     else:
         return row["filename"]
+
 
 def get_prev_and_next_picture_name(db, picture_name, person_name=None):
     c = db.cursor()
@@ -208,18 +222,20 @@ def get_prev_and_next_picture_name(db, picture_name, person_name=None):
     while (cur is not None) and (cur["filename"] != picture_name):
         prev = cur
         cur = db_result.fetchone()
-    next = db_result.fetchone()
+    next_row = db_result.fetchone()
     if prev is not None:
         prev = prev["filename"]
-    if next is not None:
-        next = next["filename"]
-    return prev, next
+    if next_row is not None:
+        next_file = next_row["filename"]
+    return prev, next_file
+
 
 def get_all_picture_names(db):
     c = db.cursor()
     return map(lambda x: x["filename"],
                c.execute("""
                SELECT filename from pictures ORDER BY filename;"""))
+
 
 def is_picture_public(db, picture_name):
     c = db.cursor()
@@ -232,6 +248,7 @@ def is_picture_public(db, picture_name):
         public_viewable=1""", (picture_name, ))
     return result.fetchone() is not None
 
+
 def get_all_public_pictures(db):
     c = db.cursor()
     result = c.execute("""
@@ -241,6 +258,7 @@ def get_all_public_pictures(db):
     ORDER BY filename""")
     return result.fetchall()
 
+
 def get_all_persons(db):
     c = db.cursor()
     return c.execute("""
@@ -248,6 +266,7 @@ def get_all_persons(db):
     FROM persons
     ORDER BY session_key;
     """)
+
 
 def rename_person(db, old_name, new_name):
     c = db.cursor()
@@ -262,6 +281,7 @@ def rename_person(db, old_name, new_name):
     db.commit()
     delete_person(db, old_name)
 
+
 def get_all_persons_and_numbers(db):
     c = db.cursor()
     return c.execute("""
@@ -269,8 +289,8 @@ def get_all_persons_and_numbers(db):
     FROM personsOnPicture
         INNER JOIN persons ON personsOnPicture.person_id=persons.id
     GROUP BY persons.name;
-    """
-    )
+    """)
+
 
 def get_all_persons_grouped_by_session_keys(db):
     db_result = get_all_persons_and_numbers(db)
@@ -279,3 +299,31 @@ def get_all_persons_grouped_by_session_keys(db):
         ret_dict[session_key].append(dict(name=name, count=count))
     return ret_dict
 
+
+def get_all_pictures_of_session_key_and_public(db, session_key):
+    c = db.cursor()
+    db_result = c.execute("""
+    SELECT pictures.filename, pictures.width, pictures.height, pictures.public_viewable
+    FROM personsOnPicture
+        INNER JOIN pictures ON personsOnPicture.picture_id=pictures.id
+        INNER JOIN persons ON personsOnPicture.person_id=persons.id
+    WHERE
+        persons.session_key=?
+    OR
+        pictures.public_viewable=1
+    ORDER BY pictures.filename;
+    """
+    , (session_key,))
+    ret = []
+    for pic in db_result.fetchall():
+        if pic["public_viewable"] == 1:
+            ret.append(dict(filename=pic["filename"],
+                            file_path="all/" + pic["filename"],
+                            width=pic["width"],
+                            height=pic["height"]))
+        else:
+            ret.append(dict(filename=pic["filename"],
+                            file_path=session_key + "/" + pic["filename"],
+                            width=pic["width"],
+                            height=pic["height"]))
+    return ret

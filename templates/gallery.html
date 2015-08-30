@@ -95,16 +95,7 @@ var items = [
 
     {% for pic in pictures %}
         {
-            src: '{{ session_key }}/{{ pic.filename }} ',
-            w: {{ pic.width }},
-            h: {{ pic.height }},
-            title: "Alle Bilder sind auch in besserer Qualität verfügbar. Fragt uns einfach. Alle Fotos wurden von <a href=http://www.dianajill-fotografie.de/>Diana Jill</a> aufgenommen. "
-        },
-    {% endfor %}
-
-    {% for pic in public_pictures %}
-        {
-            src: 'all/{{ pic.filename }}',
+            src: '{{ pic.file_path }}',
             w: {{ pic.width }},
             h: {{ pic.height }},
             title: "Alle Bilder sind auch in besserer Qualität verfügbar. Fragt uns einfach. Alle Fotos wurden von <a href=http://www.dianajill-fotografie.de/>Diana Jill</a> aufgenommen. "

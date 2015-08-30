@@ -54,17 +54,13 @@ def return_public_picture(picture_name):
 @app.route("/<string:session_key>")
 def return_gallery(session_key):
     pictures = database.get_all_pictures_of_a_session_key(g.db, session_key)
-    public_pictures = database.get_all_public_pictures(g.db)
     if len(pictures) < 1:
         return "Sorry no pictures found. Maybe you inserted the wrong session key."
     else:
-        #file_name = picture_viewing.create_zipfile(PICTURE_DIR, pictures)
-        #return send_from_directory(*os.path.split(file_name), attachment_filename="pictures.zip", as_attachment=True)
-        picture_list = picture_viewing.create_picture_list(pictures)
+        pictures = database.get_all_pictures_of_session_key_and_public(g.db, session_key)
         return render_template("gallery.html",
                                session_key=session_key,
-                               pictures=pictures,
-                               public_pictures=public_pictures)
+                               pictures=pictures)
 
 @app.route("/all")
 def public_picture_gallery():
