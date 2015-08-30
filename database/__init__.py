@@ -130,7 +130,8 @@ def get_all_pictures_of_a_session_key(db, session_key):
         INNER JOIN pictures ON personsOnPicture.picture_id=pictures.id
         INNER JOIN persons ON personsOnPicture.person_id=persons.id
     WHERE
-        persons.session_key=?;
+        persons.session_key=?
+    ORDER BY pictures.filename;
     """
     , (session_key,)
     )
@@ -301,29 +302,24 @@ def get_all_persons_grouped_by_session_keys(db):
 
 
 def get_all_pictures_of_session_key_and_public(db, session_key):
-    c = db.cursor()
-    db_result = c.execute("""
-    SELECT pictures.filename, pictures.width, pictures.height, pictures.public_viewable
-    FROM personsOnPicture
-        INNER JOIN pictures ON personsOnPicture.picture_id=pictures.id
-        INNER JOIN persons ON personsOnPicture.person_id=persons.id
-    WHERE
-        persons.session_key=?
-    OR
-        pictures.public_viewable=1
-    ORDER BY pictures.filename;
-    """
-    , (session_key,))
+    session_key_pictures = get_all_pictures_of_a_session_key(db, session_key)
     ret = []
-    for pic in db_result.fetchall():
-        if pic["public_viewable"] == 1:
-            ret.append(dict(filename=pic["filename"],
-                            file_path="all/" + pic["filename"],
-                            width=pic["width"],
-                            height=pic["height"]))
-        else:
-            ret.append(dict(filename=pic["filename"],
+    for pic in session_key_pictures:
+        ret.append(dict(filename=pic["filename"],
                             file_path=session_key + "/" + pic["filename"],
                             width=pic["width"],
                             height=pic["height"]))
-    return ret
+    public_pictures = get_all_public_pictures(db)
+    for pic in public_pictures:
+        ret.append(dict(filename=pic["filename"],
+                        file_path="all/" + pic["filename"],
+                        width=pic["width"],
+                        height=pic["height"]))
+    exist_set = set([])
+    final_ret = []
+    for pic in ret:
+        if pic["filename"] not in exist_set:
+            exist_set.add(pic["filename"])
+            final_ret.append(pic)
+
+    return sorted(final_ret, key=lambda x:x["filename"])
