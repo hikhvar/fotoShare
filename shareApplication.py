@@ -51,6 +51,12 @@ def return_public_picture(picture_name):
     else:
         return "No Picture found"
 
+@app.route("/zip/<string:session_key>")
+def return_zip_file(session_key):
+    pictures = database.get_all_pictures_of_a_session_key(g.db, session_key)
+    directory, file_name = picture_viewing.create_zipfile(config.PICTURE_DIR, pictures, session_key)
+    return send_from_directory(directory, file_name, as_attachment=True, attachment_filename=session_key+".zip")
+
 @app.route("/<string:session_key>")
 def return_gallery(session_key):
     pictures = database.get_all_pictures_of_a_session_key(g.db, session_key)
